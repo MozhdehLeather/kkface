@@ -7,7 +7,7 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3030;
 
 // Create necessary directories
 const dataDir = path.join(__dirname, 'data');
@@ -325,5 +325,6 @@ async function startServer() {
     console.log(`   3. Uncomment face-api.js code in server.js`);
   });
 }
+
 
 startServer().catch(console.error);
