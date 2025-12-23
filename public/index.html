@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>KK Face Manager - Private Admin</title>
+    <style>
+        /* Mobile-First Design with KK Book Diary Style */
+        :root {
+            --primary: #000000;
+            --secondary: #333333;
+            --light: #f8f9fa;
+            --border: #e0e0e0;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --radius: 12px;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            --safe-area-inset-top: env(safe-area-inset-top, 0px);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--light);
+            color: var(--primary);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            padding-top: calc(81px + 56px + var(--safe-area-inset-top));
+            padding-bottom: calc(80px + var(--safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Fixed Header */
+        .header {
+            background: white;
+            padding: 16px;
+            padding-top: calc(16px + var(--safe-area-inset-top));
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 81px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .header-stats::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stat-badge {
+            background: rgba(0,0,0,0.05);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Fixed Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 81px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            height: 56px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 18px 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(0,0,0,0.02);
+        }
+
+        /* Content */
+        .content {
+            padding: 16px;
+            padding-top: 20px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Form Cards */
+        .form-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary);
+            font-size: 15px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            background: white;
+            transition: border 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* Photo Upload */
+        .photo-upload {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            background: white;
+        }
+
+        .photo-upload:hover, .photo-upload:active {
+            border-color: var(--primary);
+            background: rgba(0,0,0,0.02);
+        }
+
+        .photo-upload svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            color: #999;
+        }
+
+        .photo-preview-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .photo-preview {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Camera Controls */
+        .camera-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .camera-controls .btn {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            object-fit: cover;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            min-height: 56px;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            background: #222;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover, .btn-success:active {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover, .btn-outline:active {
+            border-color: var(--primary);
+            background: rgba(0,0,0,0.02);
+        }
+
+        /* Profiles Grid */
+        .profiles-grid {
+            display: grid;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            touch-action: manipulation;
+        }
+
+        .profile-card:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-contact {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .profile-place {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .profile-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s;
+            min-height: 44px;
+            min-width: 70px;
+            touch-action: manipulation;
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn-view { background: #e3f2fd; color: #1976d2; }
+        .btn-edit { background: #e8f5e9; color: #2e7d32; }
+        .btn-share { background: #fff3e0; color: #f57c00; }
+        .btn-delete { background: #ffebee; color: #d32f2f; }
+
+        /* Recognition Result */
+        .recognition-result {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .recognition-result.show {
+            display: block;
+        }
+
+        .result-match {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+        }
+
+        .result-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .result-info p {
+            color: #666;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+            padding-bottom: var(--safe-area-inset-bottom);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            position: relative;
+            margin-top: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            touch-action: manipulation;
+        }
+
+        .modal-close:active {
+            background: rgba(0,0,0,0.1);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            transform: translateY(100px);
+            background: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2001;
+            transition: transform 0.3s ease;
+            text-align: center;
+            font-size: 15px;
+            max-width: calc(100% - 32px);
+            margin: 0 auto;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); color: #212529; }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Upload Options */
+        .upload-options {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .upload-option-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            min-height: 50px;
+            min-width: 120px;
+        }
+
+        .upload-option-btn:hover, .upload-option-btn:active {
+            border-color: var(--primary);
+            background: rgba(0,0,0,0.02);
+        }
+
+        .upload-option-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(100%);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 374px) {
+            body {
+                font-size: 15px;
+                padding-top: calc(75px + 52px + var(--safe-area-inset-top));
+            }
+            
+            .header {
+                height: 75px;
+                padding: 12px;
+                padding-top: calc(12px + var(--safe-area-inset-top));
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .tabs {
+                top: 75px;
+                height: 52px;
+            }
+            
+            .tab {
+                padding: 16px 8px;
+                font-size: 15px;
+                min-height: 52px;
+                min-width: 110px;
+            }
+            
+            .btn, .action-btn {
+                padding: 16px 12px;
+                min-height: 52px;
+            }
+            
+            .profile-actions {
+                gap: 6px;
+            }
+            
+            .action-btn {
+                min-width: 65px;
+                font-size: 13px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-top: calc(81px + 56px);
+                padding-bottom: 40px;
+            }
+            
+            .modal {
+                align-items: center;
+                padding: 20px;
+            }
+            
+            .modal-content {
+                border-radius: var(--radius);
+                max-width: 500px;
+                margin: 0;
+            }
+            
+            .content {
+                padding: 24px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .profiles-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+            
+            .toast {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%) translateY(100px);
+                max-width: 400px;
+            }
+            
+            .toast.show {
+                transform: translateX(-50%) translateY(0);
+            }
+            
+            .camera-controls .btn {
+                min-width: auto;
+                flex: none;
+                width: auto;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .profile-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .btn:hover {
+                transform: translateY(-1px);
+            }
+            
+            .action-btn:hover {
+                transform: translateY(-1px);
+            }
+            
+            .photo-upload:hover {
+                border-color: var(--primary);
+                background: rgba(0,0,0,0.02);
+            }
+        }
+
+        /* Fix for iOS input zoom */
+        @media screen and (max-width: 768px) {
+            input[type="date"],
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="number"] {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Hide arrows from number input */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <div class="header">
+        <h1>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5A3.5 3.5 0 0 1 12 15.5zm0 0v5M5 12H2M22 12h-3M12 2v3M12 19v3"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            KK Face Manager
+        </h1>
+        <div class="header-stats">
+            <div class="stat-badge" id="total-profiles">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span id="profile-count">0 Profiles</span>
+            </div>
+            <div class="stat-badge" id="total-faces">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span id="face-count">0 Faces</span>
+            </div>
+            <div class="stat-badge" id="secure-status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Private & Secure
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="showSection('profiles')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Profiles
+        </button>
+        <button class="tab" onclick="showSection('add')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add New
+        </button>
+        <button class="tab" onclick="showSection('recognize')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Recognize
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <!-- Profiles Section -->
+        <div id="profiles-section" class="section active">
+            <div class="form-card">
+                <h2 style="margin-bottom: 16px; font-size: 20px;">All Face Profiles</h2>
+                <div id="profiles-list" class="profiles-grid">
+                    <!-- Profiles will load here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Profile Section -->
+        <div id="add-section" class="section">
+            <div class="form-card">
+                <h2 style="margin-bottom: 20px; font-size: 20px;" id="form-title">Add New Profile</h2>
+                
+                <form id="profile-form">
+                    <input type="hidden" id="profile-id">
+                    
+                    <div class="form-group">
+                        <label for="name" class="required">Full Name</label>
+                        <input type="text" id="name" required maxlength="100" placeholder="Enter full name" autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact" class="required">Contact Number</label>
+                        <input type="tel" id="contact" required maxlength="20" placeholder="Enter contact number" autocomplete="tel">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="place">Place</label>
+                        <input type="text" id="place" maxlength="100" placeholder="Enter location (optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">Face Images</label>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 12px;">Add multiple photos for better accuracy</p>
+                        
+                        <div class="camera-controls">
+                            <button type="button" id="start-camera" class="btn btn-outline">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                                Start Camera
+                            </button>
+                            <button type="button" id="capture-btn" class="btn btn-success" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                Capture
+                            </button>
+                            <button type="button" id="stop-camera" class="btn btn-danger" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="6" y="6" width="12" height="12" rx="1"/>
+                                </svg>
+                                Stop
+                            </button>
+                        </div>
+                        
+                        <video id="camera-preview" class="camera-preview" autoplay playsinline></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        
+                        <div class="photo-upload" onclick="showUploadOptions()" role="button" tabindex="0" 
+                             onkeypress="if(event.key==='Enter') showUploadOptions()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <div>Click to add face images</div>
+                            <small style="color: #666; margin-top: 4px;">JPG, PNG (Max 5MB per image)</small>
+                        </div>
+                        
+                        <!-- Hidden file inputs -->
+                        <input type="file" id="photo-gallery" accept="image/*" multiple onchange="handleFileSelect(event)" style="display: none;">
+                        <input type="file" id="photo-camera" accept="image/*" capture="environment" onchange="handleFileSelect(event)" style="display: none;">
+                        
+                        <div id="photo-preview-container" class="photo-preview-container"></div>
+                        
+                        <!-- Upload Options Modal -->
+                        <div id="upload-options-modal" class="modal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div class="modal-title">Add Face Images</div>
+                                    <button class="modal-close" onclick="closeUploadOptions()" aria-label="Close">×</button>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <p style="margin-bottom: 16px; color: #666;">Add multiple photos from:</p>
+                                    <div class="upload-options">
+                                        <button type="button" class="upload-option-btn" onclick="chooseFromGallery()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                                <polyline points="21 15 16 10 5 21"/>
+                                            </svg>
+                                            Gallery
+                                        </button>
+                                        <button type="button" class="upload-option-btn" onclick="takePhoto()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                                <circle cx="12" cy="13" r="4"/>
+                                            </svg>
+                                            Camera
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <button class="btn btn-secondary" onclick="closeUploadOptions()" style="width: 100%;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button type="button" id="cancel-btn" class="btn btn-secondary" onclick="resetForm()" style="display: none;">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary">
+                            <span id="submit-text">Save Profile</span>
+                            <span id="submit-loading" class="loading" style="display: none;"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recognize Section -->
+        <div id="recognize-section" class="section">
+            <div class="form-card">
+                <h2 style="margin-bottom: 20px; font-size: 20px;">Recognize Face</h2>
+                
+                <div class="form-group">
+                    <label>Upload or capture face image</label>
+                    
+                    <div class="camera-controls">
+                        <button type="button" id="start-camera-rec" class="btn btn-outline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            Use Camera
+                        </button>
+                        <button type="button" id="capture-btn-rec" class="btn btn-success" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Capture
+                        </button>
+                    </div>
+                    
+                    <video id="camera-preview-rec" class="camera-preview" autoplay playsinline></video>
+                    <canvas id="camera-canvas-rec" style="display: none;"></canvas>
+                    
+                    <div class="photo-upload" onclick="document.getElementById('recognize-file-input').click()" 
+                         role="button" tabindex="0" onkeypress="if(event.key==='Enter') document.getElementById('recognize-file-input').click()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <div>Click to upload face image</div>
+                        <small style="color: #666; margin-top: 4px;">JPG, PNG (Max 5MB)</small>
+                    </div>
+                    
+                    <input type="file" id="recognize-file-input" accept="image/*" onchange="handleRecognizeFileSelect(event)" style="display: none;">
+                    
+                    <div id="recognize-preview" class="photo-preview-container" style="margin-top: 15px;"></div>
+                </div>
+                
+                <div id="recognition-result" class="recognition-result"></div>
+                
+                <div class="buttons">
+                    <button type="button" id="recognize-btn" class="btn btn-primary" disabled>
+                        <span id="recognize-text">Recognize Face</span>
+                        <span id="recognize-loading" class="loading" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Profile</div>
+                <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+            </div>
+            <div id="edit-form-container">
+                <!-- Edit form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- View Profile Modal -->
+    <div id="view-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Profile Details</div>
+                <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+            </div>
+            <div id="view-profile-container">
+                <!-- Profile details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Delete Profile</div>
+                <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+            </div>
+            <p style="margin-bottom: 24px;">Are you sure you want to delete this profile? This action cannot be undone.</p>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()" style="flex: 1;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Share Profile Info</div>
+                <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+            </div>
+            <p style="margin-bottom: 12px;">Copy profile information:</p>
+            <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 20px; 
+                word-break: break-all; font-size: 14px; line-height: 1.5;" id="share-info"></div>
+            <button class="btn btn-primary" onclick="copyProfileInfo()" style="width: 100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Copy Info
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+<script>
+    // State
+    let profiles = [];
+    let selectedImages = [];
+    let cameraStream = null;
+    let cameraStreamRec = null;
+    let currentEditingId = null;
+    let recognitionImage = null;
+    let deleteTargetId = null;
+    let shareProfileInfo = '';
+
+    // DOM Elements
+    const API_BASE = '/api';
+    const profilesList = document.getElementById('profiles-list');
+    const profileForm = document.getElementById('profile-form');
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitLoading = document.getElementById('submit-loading');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const recognizeBtn = document.getElementById('recognize-btn');
+    const recognizeText = document.getElementById('recognize-text');
+    const recognizeLoading = document.getElementById('recognize-loading');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Prevent double-tap zoom
+        const buttons = document.querySelectorAll('button, .photo-upload');
+        buttons.forEach(btn => {
+            btn.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+
+        loadProfiles();
+        setupForm();
+        setupCameraEvents();
+        setupUploadEvents();
+    });
+
+    // Setup camera events
+    function setupCameraEvents() {
+        // Add profile camera
+        document.getElementById('start-camera').addEventListener('click', startCamera);
+        document.getElementById('stop-camera').addEventListener('click', stopCamera);
+        document.getElementById('capture-btn').addEventListener('click', capturePhoto);
+
+        // Recognition camera
+        document.getElementById('start-camera-rec').addEventListener('click', startCameraRec);
+        document.getElementById('capture-btn-rec').addEventListener('click', capturePhotoRec);
+        document.getElementById('recognize-btn').addEventListener('click', recognizeFace);
+    }
+
+    // Setup upload events
+    function setupUploadEvents() {
+        document.getElementById('recognize-file-input').addEventListener('change', handleRecognizeFileSelect);
+    }
+
+    // Tabs
+    function showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        document.getElementById(`${section}-section`).classList.add('active');
+        const tab = document.querySelector(`.tab[onclick="showSection('${section}')"]`);
+        if (tab) tab.classList.add('active');
+        
+        if (section === 'profiles') {
+            loadProfiles();
+            resetCamera();
+        } else if (section === 'add') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (section === 'recognize') {
+            resetRecognition();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // Load Profiles
+    async function loadProfiles() {
+        try {
+            showLoading();
+            const response = await fetch(`${API_BASE}/profiles`);
+            if (!response.ok) throw new Error('Failed to load profiles');
+            
+            profiles = await response.json();
+            renderProfiles();
+            updateStats();
+        } catch (error) {
+            showToast('Error loading profiles', 'error');
+            console.error(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function renderProfiles() {
+        if (profiles.length === 0) {
+            profilesList.innerHTML = `
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <h3>No Profiles Yet</h3>
+                    <p>Add your first face profile to get started</p>
+                    <button class="btn btn-primary" onclick="showSection('add')" 
+                        style="margin-top: 20px; max-width: 200px; margin-left: auto; margin-right: auto;">
+                        Add First Profile
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        profilesList.innerHTML = profiles.map(profile => `
+            <div class="profile-card" data-id="${profile.id}">
+                <div class="profile-header">
+                    <img src="${profile.faces && profile.faces.length > 0 ? `/faces/${profile.faces[0]}` : getAvatarUrl(profile.name)}" 
+                         alt="${profile.name}" class="profile-avatar"
+                         onerror="this.src='${getAvatarUrl(profile.name)}'">
+                    <div class="profile-info">
+                        <div class="profile-name">${escapeHtml(profile.name)}</div>
+                        <div class="profile-contact">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            ${escapeHtml(profile.contact)}
+                        </div>
+                        ${profile.place ? `
+                        <div class="profile-place">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            ${escapeHtml(profile.place)}
+                        </div>` : ''}
+                    </div>
+                </div>
+                
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">${profile.faces ? profile.faces.length : 0}</div>
+                        <div class="meta-label">Faces</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">${formatDate(profile.createdAt)}</div>
+                        <div class="meta-label">Added</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">${formatDate(profile.updatedAt)}</div>
+                        <div class="meta-label">Updated</div>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn btn-view" onclick="viewProfile('${profile.id}')" aria-label="View profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        View
+                    </button>
+                    <button class="action-btn btn-edit" onclick="editProfile('${profile.id}')" aria-label="Edit profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit
+                    </button>
+                    <button class="action-btn btn-share" onclick="showShareModal('${profile.id}')" aria-label="Share profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                        Share
+                    </button>
+                    <button class="action-btn btn-delete" onclick="showDeleteModal('${profile.id}')" aria-label="Delete profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateStats() {
+        const totalFaces = profiles.reduce((sum, profile) => sum + (profile.faces ? profile.faces.length : 0), 0);
+        document.getElementById('profile-count').textContent = `${profiles.length} Profiles`;
+        document.getElementById('face-count').textContent = `${totalFaces} Faces`;
+    }
+
+    function getAvatarUrl(name) {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=000&color=fff&bold=true`;
+    }
+
+    // Camera Functions
+    async function startCamera() {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                } 
+            });
+            const preview = document.getElementById('camera-preview');
+            preview.srcObject = cameraStream;
+            preview.style.display = 'block';
+            
+            document.getElementById('start-camera').disabled = true;
+            document.getElementById('stop-camera').disabled = false;
+            document.getElementById('capture-btn').disabled = false;
+        } catch (error) {
+            showToast('Camera access denied', 'error');
+        }
+    }
+
+    async function startCameraRec() {
+        try {
+            cameraStreamRec = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                } 
+            });
+            const preview = document.getElementById('camera-preview-rec');
+            preview.srcObject = cameraStreamRec;
+            preview.style.display = 'block';
+            
+            document.getElementById('start-camera-rec').disabled = true;
+            document.getElementById('capture-btn-rec').disabled = false;
+        } catch (error) {
+            showToast('Camera access denied', 'error');
+        }
+    }
+
+    function capturePhoto() {
+        const preview = document.getElementById('camera-preview');
+        const canvas = document.getElementById('camera-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = preview.videoWidth;
+        canvas.height = preview.videoHeight;
+        ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+            const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            addImageToPreview(file);
+            
+            // Success feedback
+            const captureBtn = document.getElementById('capture-btn');
+            const originalHTML = captureBtn.innerHTML;
+            captureBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Captured!';
+            captureBtn.style.background = '#28a745';
+            
+            setTimeout(() => {
+                captureBtn.innerHTML = originalHTML;
+                captureBtn.style.background = '';
+            }, 1500);
+        }, 'image/jpeg', 0.9);
+    }
+
+    function capturePhotoRec() {
+        const preview = document.getElementById('camera-preview-rec');
+        const canvas = document.getElementById('camera-canvas-rec');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = preview.videoWidth;
+        canvas.height = preview.videoHeight;
+        ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+            const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            handleRecognizeFile(file);
+            
+            // Stop camera
+            preview.srcObject.getTracks().forEach(track => track.stop());
+            preview.style.display = 'none';
+            document.getElementById('start-camera-rec').disabled = false;
+            document.getElementById('capture-btn-rec').disabled = true;
+            cameraStreamRec = null;
+            
+            // Success feedback
+            const captureBtn = document.getElementById('capture-btn-rec');
+            const originalHTML = captureBtn.innerHTML;
+            captureBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Captured!';
+            captureBtn.style.background = '#28a745';
+            
+            setTimeout(() => {
+                captureBtn.innerHTML = originalHTML;
+                captureBtn.style.background = '';
+            }, 1500);
+        }, 'image/jpeg', 0.9);
+    }
+
+    function stopCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+            
+            document.getElementById('camera-preview').style.display = 'none';
+            document.getElementById('start-camera').disabled = false;
+            document.getElementById('stop-camera').disabled = true;
+            document.getElementById('capture-btn').disabled = true;
+        }
+    }
+
+    function resetCamera() {
+        stopCamera();
+        if (cameraStreamRec) {
+            cameraStreamRec.getTracks().forEach(track => track.stop());
+            cameraStreamRec = null;
+        }
+        document.getElementById('camera-preview-rec').style.display = 'none';
+        document.getElementById('start-camera-rec').disabled = false;
+        document.getElementById('capture-btn-rec').disabled = true;
+    }
+
+    // Photo Upload Functions
+    function showUploadOptions() {
+        document.getElementById('upload-options-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeUploadOptions() {
+        document.getElementById('upload-options-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function chooseFromGallery() {
+        closeUploadOptions();
+        const galleryInput = document.getElementById('photo-gallery');
+        galleryInput.removeAttribute('capture');
+        setTimeout(() => galleryInput.click(), 100);
+    }
+
+    function takePhoto() {
+        closeUploadOptions();
+        const cameraInput = document.getElementById('photo-camera');
+        cameraInput.setAttribute('capture', 'environment');
+        setTimeout(() => cameraInput.click(), 100);
+    }
+
+    function handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+        
+        files.forEach(file => {
+            // Validate file
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File size must be less than 5MB', 'error');
+                return;
+            }
+            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg') && !file.type.match('image/png')) {
+                showToast('Only JPG and PNG images are allowed', 'error');
+                return;
+            }
+            
+            addImageToPreview(file);
+        });
+        
+        event.target.value = '';
+    }
+
+    function addImageToPreview(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const container = document.getElementById('photo-preview-container');
+            const div = document.createElement('div');
+            div.className = 'photo-preview';
+            div.innerHTML = `
+                <img src="${e.target.result}" alt="Preview">
+                <button type="button" class="photo-remove" onclick="removeImagePreview(this)" data-index="${selectedImages.length}">×</button>
+            `;
+            container.appendChild(div);
+            
+            selectedImages.push({
+                file: file,
+                url: e.target.result
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeImagePreview(button) {
+        const index = parseInt(button.getAttribute('data-index'));
+        selectedImages.splice(index, 1);
+        button.parentElement.remove();
+        
+        // Update data-index for remaining images
+        document.querySelectorAll('.photo-preview').forEach((preview, idx) => {
+            preview.querySelector('.photo-remove').setAttribute('data-index', idx);
+        });
+    }
+
+    // Recognize Functions
+    function handleRecognizeFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('File size must be less than 5MB', 'error');
+            return;
+        }
+        
+        if (!file.type.match('image/jpeg') && !file.type.match('image/jpg') && !file.type.match('image/png')) {
+            showToast('Only JPG and PNG images are allowed', 'error');
+            return;
+        }
+        
+        handleRecognizeFile(file);
+        event.target.value = '';
+    }
+
+    function handleRecognizeFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('recognize-preview');
+            preview.innerHTML = `
+                <div class="photo-preview">
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="photo-remove" onclick="removeRecognizePreview()">×</button>
+                </div>
+            `;
+            
+            recognitionImage = file;
+            recognizeBtn.disabled = false;
+            document.getElementById('recognition-result').classList.remove('show');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeRecognizePreview() {
+        document.getElementById('recognize-preview').innerHTML = '';
+        recognitionImage = null;
+        recognizeBtn.disabled = true;
+        document.getElementById('recognition-result').classList.remove('show');
+    }
+
+    function resetRecognition() {
+        removeRecognizePreview();
+        resetCamera();
+    }
+
+    // Form Handling
+    function setupForm() {
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveProfile();
+        });
+    }
+
+    async function saveProfile() {
+        const name = document.getElementById('name').value.trim();
+        const contact = document.getElementById('contact').value.trim();
+        const place = document.getElementById('place').value.trim();
+        
+        if (!name || !contact) {
+            showToast('Please fill all required fields', 'error');
+            return;
+        }
+
+        if (selectedImages.length === 0) {
+            showToast('Please add at least one face image', 'error');
+            return;
+        }
+
+        try {
+            showSubmitLoading();
+            
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('contact', contact);
+            formData.append('place', place);
+            
+            selectedImages.forEach((img, index) => {
+                formData.append('faces', img.file);
+            });
+
+            let endpoint, method;
+            if (currentEditingId) {
+                endpoint = `${API_BASE}/profiles/${currentEditingId}`;
+                method = 'PUT';
+            } else {
+                endpoint = `${API_BASE}/profiles`;
+                method = 'POST';
+            }
+
+            const response = await fetch(endpoint, {
+                method: method,
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to save profile');
+            }
+
+            showToast(result.message || 'Profile saved successfully', 'success');
+            resetForm();
+            loadProfiles();
+            showSection('profiles');
+
+        } catch (error) {
+            showToast(error.message || 'Failed to save profile. Please try again.', 'error');
+        } finally {
+            hideSubmitLoading();
+        }
+    }
+
+    // Edit Profile
+    async function editProfile(id) {
+        try {
+            showLoading();
+            const response = await fetch(`${API_BASE}/profiles/${id}`);
+            if (!response.ok) throw new Error('Failed to load profile');
+            
+            const profile = await response.json();
+            
+            // Fill form
+            document.getElementById('profile-id').value = profile.id;
+            document.getElementById('name').value = profile.name;
+            document.getElementById('contact').value = profile.contact;
+            document.getElementById('place').value = profile.place || '';
+            
+            // Clear selected images
+            selectedImages = [];
+            document.getElementById('photo-preview-container').innerHTML = '';
+            
+            // Show current faces
+            if (profile.faces && profile.faces.length > 0) {
+                const container = document.getElementById('photo-preview-container');
+                profile.faces.forEach((face, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-preview';
+                    div.innerHTML = `
+                        <img src="/faces/${face}" alt="Face ${index + 1}">
+                        <button type="button" class="photo-remove" onclick="removeExistingImage('${face}')">×</button>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            // Update UI for edit mode
+            currentEditingId = id;
+            formTitle.textContent = 'Edit Profile';
+            submitText.textContent = 'Update Profile';
+            cancelBtn.style.display = 'flex';
+            
+            showSection('add');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } catch (error) {
+            showToast('Error loading profile', 'error');
+            console.error(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function removeExistingImage(filename) {
+        if (confirm('Remove this face image?')) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/profiles/${currentEditingId}/faces/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('Face image removed', 'success');
+                    await editProfile(currentEditingId); // Reload the form
+                } else {
+                    throw new Error('Failed to remove image');
+                }
+            } catch (error) {
+                showToast('Error removing image', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    }
+
+    // View Profile
+    async function viewProfile(id) {
+        try {
+            const response = await fetch(`${API_BASE}/profiles/${id}`);
+            if (!response.ok) throw new Error('Failed to load profile');
+            
+            const profile = await response.json();
+            const container = document.getElementById('view-profile-container');
+            
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <img src="${profile.faces && profile.faces.length > 0 ? `/faces/${profile.faces[0]}` : getAvatarUrl(profile.name)}" 
+                         alt="${profile.name}" 
+                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #000; margin-bottom: 20px;"
+                         onerror="this.src='${getAvatarUrl(profile.name)}'">
+                    <h2 style="margin-bottom: 10px; font-weight: 600;">${escapeHtml(profile.name)}</h2>
+                    <p style="color: #666; margin-bottom: 5px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 6px;">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        ${escapeHtml(profile.contact)}
+                    </p>
+                    ${profile.place ? `
+                    <p style="color: #666;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 6px;">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        ${escapeHtml(profile.place)}
+                    </p>` : ''}
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 600; color: #000;">${profile.faces ? profile.faces.length : 0}</div>
+                            <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Face Images</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 600; color: #000;">${formatDate(profile.createdAt)}</div>
+                            <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Created</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 600; color: #000;">${formatDate(profile.updatedAt)}</div>
+                            <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Updated</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${profile.faces && profile.faces.length > 0 ? `
+                <div style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 16px; font-weight: 600;">Face Images</h3>
+                    <div class="photo-preview-container">
+                        ${profile.faces.map(face => `
+                            <div class="photo-preview">
+                                <img src="/faces/${face}" alt="Face image">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>` : ''}
+                
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-success" onclick="editProfile('${profile.id}')" style="flex: 1;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit Profile
+                    </button>
+                    <button class="btn btn-danger" onclick="showDeleteModal('${profile.id}')" style="flex: 1;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('view-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+        } catch (error) {
+            showToast('Error loading profile', 'error');
+            console.error(error);
+        }
+    }
+
+    // Reset Form
+    function resetForm() {
+        profileForm.reset();
+        selectedImages = [];
+        document.getElementById('photo-preview-container').innerHTML = '';
+        document.getElementById('photo-gallery').value = '';
+        document.getElementById('photo-camera').value = '';
+        
+        currentEditingId = null;
+        formTitle.textContent = 'Add New Profile';
+        submitText.textContent = 'Save Profile';
+        cancelBtn.style.display = 'none';
+        
+        closeUploadOptions();
+        stopCamera();
+    }
+
+    // Recognize Face
+    async function recognizeFace() {
+        if (!recognitionImage) {
+            showToast('Please select an image first', 'error');
+            return;
+        }
+
+        try {
+            showRecognizeLoading();
+            
+            const formData = new FormData();
+            formData.append('image', recognitionImage);
+
+            const response = await fetch(`${API_BASE}/recognize`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            const resultContainer = document.getElementById('recognition-result');
+            
+            if (result.match && result.profile) {
+                resultContainer.innerHTML = `
+                    <div class="result-match">
+                        <img src="${result.profile.faces && result.profile.faces.length > 0 ? `/faces/${result.profile.faces[0]}` : getAvatarUrl(result.profile.name)}" 
+                             alt="${result.profile.name}" class="result-avatar"
+                             onerror="this.src='${getAvatarUrl(result.profile.name)}'">
+                        <div class="result-info">
+                            <h3>Match Found!</h3>
+                            <p><strong>${escapeHtml(result.profile.name)}</strong></p>
+                            <p>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                                ${escapeHtml(result.profile.contact)}
+                            </p>
+                            ${result.profile.place ? `
+                            <p>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                ${escapeHtml(result.profile.place)}
+                            </p>` : ''}
+                            <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                Matched with ${result.confidence ? `${result.confidence}%` : 'high'} confidence
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-success" onclick="viewProfile('${result.profile.id}')" style="flex: 1;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            View Profile
+                        </button>
+                        <button class="btn btn-outline" onclick="showShareModal('${result.profile.id}')" style="flex: 1;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="5" r="3"/>
+                                <circle cx="6" cy="12" r="3"/>
+                                <circle cx="18" cy="19" r="3"/>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                            Share Info
+                        </button>
+                    </div>
+                `;
+            } else {
+                resultContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px 20px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin-bottom: 16px; color: #666;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <h3 style="margin-bottom: 8px; font-weight: 600;">No Match Found</h3>
+                        <p style="color: #666; margin-bottom: 24px;">This face is not in the database</p>
+                        <button class="btn btn-primary" onclick="showSection('add')" style="width: 100%;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add as New Profile
+                        </button>
+                    </div>
+                `;
+            }
+            
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+        } catch (error) {
+            showToast('Error recognizing face', 'error');
+            console.error(error);
+        } finally {
+            hideRecognizeLoading();
+        }
+    }
+
+    // Delete Profile
+    function showDeleteModal(id) {
+        deleteTargetId = id;
+        document.getElementById('delete-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    async function confirmDelete() {
+        try {
+            showLoading();
+            const response = await fetch(`${API_BASE}/profiles/${deleteTargetId}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) throw new Error('Failed to delete');
+            
+            showToast('Profile deleted successfully', 'success');
+            closeModal();
+            loadProfiles();
+            
+        } catch (error) {
+            showToast('Error deleting profile', 'error');
+            console.error(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Share Profile
+    function showShareModal(id) {
+        const profile = profiles.find(p => p.id === id);
+        if (!profile) return;
+        
+        shareProfileInfo = `Name: ${profile.name}\nContact: ${profile.contact}\nPlace: ${profile.place || 'Not specified'}\nFace Images: ${profile.faces ? profile.faces.length : 0}\nAdded: ${formatDate(profile.createdAt)}\nUpdated: ${formatDate(profile.updatedAt)}`;
+        
+        document.getElementById('share-info').textContent = shareProfileInfo;
+        document.getElementById('share-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    async function copyProfileInfo() {
+        try {
+            await navigator.clipboard.writeText(shareProfileInfo);
+            showToast('Profile info copied to clipboard!', 'success');
+            closeModal();
+        } catch (error) {
+            const textArea = document.createElement('textarea');
+            textArea.value = shareProfileInfo;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast('Profile info copied to clipboard!', 'success');
+            closeModal();
+        }
+    }
+
+    // Modal
+    function closeModal() {
+        document.querySelectorAll('.modal').forEach(m => {
+            m.style.display = 'none';
+        });
+        deleteTargetId = null;
+        shareProfileInfo = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    });
+
+    // Toast
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Loading States
+    function showLoading() {
+        submitLoading.style.display = 'inline-block';
+        submitText.style.display = 'none';
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+    }
+
+    function hideLoading() {
+        submitLoading.style.display = 'none';
+        submitText.style.display = 'inline';
+        submitBtn.disabled = false;
+        cancelBtn.disabled = false;
+    }
+
+    function showSubmitLoading() {
+        submitLoading.style.display = 'inline-block';
+        submitText.style.display = 'none';
+        submitBtn.disabled = true;
+    }
+
+    function hideSubmitLoading() {
+        submitLoading.style.display = 'none';
+        submitText.style.display = 'inline';
+        submitBtn.disabled = false;
+    }
+
+    function showRecognizeLoading() {
+        recognizeLoading.style.display = 'inline-block';
+        recognizeText.style.display = 'none';
+        recognizeBtn.disabled = true;
+    }
+
+    function hideRecognizeLoading() {
+        recognizeLoading.style.display = 'none';
+        recognizeText.style.display = 'inline';
+        recognizeBtn.disabled = false;
+    }
+
+    // Helpers
+    function formatDate(dateString) {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return 'Unknown date';
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Handle keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeUploadOptions();
+        }
+    });
+
+    // Handle back button
+    window.addEventListener('popstate', () => {
+        if (currentEditingId) {
+            resetForm();
+            showSection('profiles');
+        }
+    });
+</script>
+</body>
+</html>
